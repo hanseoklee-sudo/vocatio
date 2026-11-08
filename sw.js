@@ -1,6 +1,6 @@
 /* Vocatio offline cache. The app shell is network-first so updates arrive on the next launch;
-   fonts and PDF libraries are cached as they are used. Sync requests always go to the network. */
-const VERSION = 'vocatio-v2';
+   the Pretendard font and PDF libraries are cached as they are used. Sync requests always go to the network. */
+const VERSION = 'vocatio-v4';
 const CORE = ['./', './index.html', './manifest.webmanifest', './icon-180.png', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', e => {
@@ -35,7 +35,7 @@ self.addEventListener('fetch', e => {
   }
 
   const cacheable = url.origin === self.location.origin ||
-    /^(fonts\.googleapis\.com|fonts\.gstatic\.com|cdnjs\.cloudflare\.com)$/.test(url.hostname);
+    /^(fonts\.googleapis\.com|fonts\.gstatic\.com|cdnjs\.cloudflare\.com|cdn\.jsdelivr\.net)$/.test(url.hostname);
   if (!cacheable) return;
 
   e.respondWith(
