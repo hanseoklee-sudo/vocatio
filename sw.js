@@ -1,6 +1,6 @@
 /* Vocatio offline cache. The app shell is network-first so updates arrive on the next launch;
    the Pretendard font and PDF libraries are cached as they are used. Sync requests always go to the network. */
-const VERSION = 'vocatio-v4';
+const VERSION = 'vocatio-v5';
 const CORE = ['./', './index.html', './manifest.webmanifest', './icon-180.png', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', e => {
@@ -22,11 +22,15 @@ self.addEventListener('fetch', e => {
   if (/(^|\.)script\.google\.com$|googleusercontent\.com$/.test(url.hostname)) return;
 
   if (req.mode === 'navigate') {
+    // Ask the server every time (no-cache revalidates with GitHub Pages), so a new index.html shows up on the next launch.
     e.respondWith(
-      fetch(req)
+      fetch(req.url, { cache: 'no-cache', credentials: 'same-origin' })
+        .then(res => (res.redirected ? fetch(req) : res))
         .then(res => {
-          const copy = res.clone();
-          caches.open(VERSION).then(c => c.put('./index.html', copy));
+          if (res.ok && !res.redirected) {
+            const copy = res.clone();
+            caches.open(VERSION).then(c => c.put('./index.html', copy));
+          }
           return res;
         })
         .catch(() => caches.match('./index.html').then(r => r || caches.match('./')))
